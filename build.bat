@@ -11,6 +11,7 @@ if "%1"=="rls" (
 )
 
 set rayDir=%buildDir%\raylib
+set sandDir=%buildDir%\sandbox
 
 if not exist %buildDir% mkdir %buildDir%
 if not exist %rayDir% (
@@ -25,6 +26,11 @@ if not exist %rayDir% (
     cl /nologo src/Windows/rcore.c /Ivendor/raylib/src/external/glfw/include/ -c %buildFlags% /Fo:%rayDir%\rcore.obj
 
     lib /nologo %rayDir%\rcore.obj %rayDir%\utils.obj %rayDir%\rglfw.obj %rayDir%\raudio.obj %rayDir%\rmodels.obj %rayDir%\rshapes.obj %rayDir%\rtext.obj %rayDir%\rtextures.obj /out:%rayDir%\raylib.lib
+)
+if not exist %sandDir% (
+    mkdir %sandDir%
+    cl /nologo /Isrc/Game/ sandbox/game.cc -c %buildFlags% /Fo:%sandDir%\sandbox.obj
+    link /NOLOGO %sandDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
 )
 
 cl /nologo /Ivendor/raylib/src/ src/Windows/main.cc -c %buildFlags% /Fo:%buildDir%\okc.obj
