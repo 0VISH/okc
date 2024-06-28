@@ -16,8 +16,8 @@ namespace log{
 };
 void clog(const char *fmt, ...){
     va_list args;
-    va_start(fmt, args);
-    vfprintf(logFile, fmt, args);
+    va_start(args, fmt);
+    vfprintf(log::logFile, fmt, args);
     va_end(args);
 };
 #endif

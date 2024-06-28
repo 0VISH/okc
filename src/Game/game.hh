@@ -1,7 +1,16 @@
+#include "basic.hh"
+
 typedef void (*VOIDPROC)();
+void (*clog)(const char*, ...);
+#define EXPORT extern "C" __declspec(dllexport)
+
+namespace ray{
+    #include "raylib.h"
+};
+#include "procDef.cc"
 
 #if(DBG)
-#define EXPORT extern "C" __declspec(dllexport)
+
 #define BIND_PROC(PROC_DST)						                                                   \
     if(x >= len){clog("Binding %s failed as x(%d) >= len(%d)", #PROC_DST, x, len); return false;}; \
     PROC_DST = reinterpret_cast<decltype(PROC_DST)>(procs[x]);		                               \
@@ -10,17 +19,15 @@ typedef void (*VOIDPROC)();
 #endif
 
 #if(RLS)
-#define EXPORT
-#define BIND_PROC(PROC_DST) PROC_DST = reinterpret_cast<decltype(PROC_DST)>(procs[x]);
+#define BIND_PROC(PROC_DST)						                \
+    PROC_DST = reinterpret_cast<decltype(PROC_DST)>(procs[x]);	\
+
 #endif
 
-void (*clog)(const char*, ...);
-#include "basic.hh"
-    
 EXPORT bool gameBind(VOIDPROC *procs, u32 len){
     u32 x = 0;
     BIND_PROC(clog);
-
+    #include "procBind.cc"
 #if(DBG)
     if(x < len){
         clog("Underbinding x(%d) < len(%d)", x, len);

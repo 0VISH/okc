@@ -4,4 +4,5 @@ typedef void (*VOIDPROC)();
 
 VOIDPROC procs[] = {
     V(clog),
+    #include "procArr.cc"
 };

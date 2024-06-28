@@ -27,9 +27,12 @@ if not exist %rayDir% (
 
     lib /nologo %rayDir%\rcore.obj %rayDir%\utils.obj %rayDir%\rglfw.obj %rayDir%\raudio.obj %rayDir%\rmodels.obj %rayDir%\rshapes.obj %rayDir%\rtext.obj %rayDir%\rtextures.obj /out:%rayDir%\raylib.lib
 )
-if not exist %sandDir% (
+set buildSand=F
+if not exist %sandDir% set buildSand=T
+if "%1"=="sand" set buildSand=T
+if "%buildSand%"== "T" (
     mkdir %sandDir%
-    cl /nologo /Isrc/Game/ sandbox/game.cc -c %buildFlags% /Fo:%sandDir%\sandbox.obj
+    cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%sandDir%\sandbox.obj
     link /NOLOGO %sandDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
 )
 
