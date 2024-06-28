@@ -11,3 +11,5 @@ namespace code{
     void *getProc(void *code, char *name);
     void unload(void *code);
 };
+void *openFile(char *name);
+void closeFile(void *file);

@@ -17,12 +17,12 @@ void clog(const char *fmt, ...){
 
 #if(RLS)
 namespace log{
-    static FILE *logFile;
+    void *logFile;
 };
 void clog(const char *fmt, ...){
     va_list args;
     va_start(args, fmt);
-    vfprintf(log::logFile, fmt, args);
+    vfprintf((FILE*)log::logFile, fmt, args);
     va_end(args);
 };
 #endif
@@ -53,3 +53,6 @@ namespace code{
     void *getProc(void *code, char *name){return GetProcAddress((HMODULE)code, name);};
     void unload(void *code){FreeLibrary((HMODULE)code);};
 };
+
+void *openFile(char *name){return fopen(name, "w");};
+void closeFile(void *file){fclose((FILE*)file);};

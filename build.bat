@@ -6,7 +6,7 @@ set linkerFlags=/DEBUG /PDB:%buildDir%\okc.pdb
 
 if "%1"=="rls" (
     set buildDir=bin\win\rls
-    set buildFlags=/D RLS=1
+    set buildFlags=/D RLS=1 /Isrc/Game/
     set linkerFlags=
 )
 
@@ -32,6 +32,7 @@ if not exist %buildDir%\win32.obj (
 set buildSand=F
 if not exist %buildDir%\sandbox.obj set buildSand=T
 if "%1"=="sand" set buildSand=T
+if "%1"=="rls" set buildSand=F
 if "%buildSand%"== "T" (
     cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%buildDir%\sandbox.obj
     link /NOLOGO %buildDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb

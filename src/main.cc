@@ -48,3 +48,28 @@ CLEANUP:
 };
 
 #endif
+
+#if(RLS)
+
+//TARGET GAME GOES HERE
+#include "../sandbox/game.cc"
+
+namespace log{
+    extern void *logFile;
+};
+
+u32 main(){
+    log::logFile = openFile("runtime.log");
+    InitWindow(1800, 900, "sandbox");
+    gameInit();
+    while(!WindowShouldClose()){
+        BeginDrawing();
+        ClearBackground({10, 10, 10, 255});
+        gameUpdate();
+        EndDrawing();
+    };
+    gameUninit();
+    CloseWindow();
+    closeFile(log::logFile);
+};
+#endif

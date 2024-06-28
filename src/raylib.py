@@ -92,7 +92,7 @@ engineProcArr.write(header)
 file = "vendor/raylib/src/raylib.h"
 f = open(file)
 line1 = 943
-line2 = 958
+line2 = 954
 lines = f.readlines()
 rayLines = lines[:line1]
 procLines = lines[line2:]
