@@ -11,7 +11,6 @@ if "%1"=="rls" (
 )
 
 set rayDir=%buildDir%\raylib
-set sandDir=%buildDir%\sandbox
 
 if not exist %buildDir% mkdir %buildDir%
 if not exist %rayDir% (
@@ -23,18 +22,20 @@ if not exist %rayDir% (
     cl /nologo vendor/raylib/src/rtext.c -c %buildFlags% /Fo:%rayDir%\rtext.obj
     cl /nologo vendor/raylib/src/rtextures.c -c %buildFlags% /Fo:%rayDir%\rtextures.obj
     cl /nologo vendor/raylib/src/utils.c -c %buildFlags% /Fo:%rayDir%\utils.obj
-    cl /nologo src/Windows/rcore.c /Ivendor/raylib/src/external/glfw/include/ -c %buildFlags% /Fo:%rayDir%\rcore.obj
+    cl /nologo /Ivendor\raylib\src\external\glfw\include\ src/Windows/win32Raylib.c -c %buildFlags% /Fo:%rayDir%\win32Raylib.obj
 
-    lib /nologo %rayDir%\rcore.obj %rayDir%\utils.obj %rayDir%\rglfw.obj %rayDir%\raudio.obj %rayDir%\rmodels.obj %rayDir%\rshapes.obj %rayDir%\rtext.obj %rayDir%\rtextures.obj /out:%rayDir%\raylib.lib
+    lib /nologo %rayDir%\win32Raylib.obj %rayDir%\utils.obj %rayDir%\rglfw.obj %rayDir%\raudio.obj %rayDir%\rmodels.obj %rayDir%\rshapes.obj %rayDir%\rtext.obj %rayDir%\rtextures.obj /out:%rayDir%\raylib.lib
+)
+if not exist %buildDir%\win32.obj (
+    cl /nologo src/Windows/win32.cc -c %buildFlags% /Fo:%buildDir%\win32.obj
 )
 set buildSand=F
-if not exist %sandDir% set buildSand=T
+if not exist %buildDir%\sandbox.obj set buildSand=T
 if "%1"=="sand" set buildSand=T
 if "%buildSand%"== "T" (
-    mkdir %sandDir%
-    cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%sandDir%\sandbox.obj
-    link /NOLOGO %sandDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
+    cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%buildDir%\sandbox.obj
+    link /NOLOGO %buildDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
 )
 
-cl /nologo /Ivendor/raylib/src/ src/Windows/main.cc -c %buildFlags% /Fo:%buildDir%\okc.obj
-link /NOLOGO %buildDir%\okc.obj %rayDir%\raylib.lib %linkerFlags% /OUT:%buildDir%\okc.exe
+cl /nologo /Ivendor/raylib/src/ src/main.cc -c %buildFlags% /Fo:%buildDir%\okc.obj
+link /NOLOGO %buildDir%\okc.obj %buildDir%\win32.obj %rayDir%\raylib.lib %linkerFlags% /OUT:%buildDir%\okc.exe

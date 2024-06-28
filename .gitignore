@@ -3,5 +3,6 @@ bin/
 **/*.log
 
 src/Game/procBind.cc
-src/Game/procDef.cc
+src/Game/procPointers.cc
+src/Game/ray.h
 src/procArr.cc

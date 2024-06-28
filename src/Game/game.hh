@@ -4,10 +4,8 @@ typedef void (*VOIDPROC)();
 void (*clog)(const char*, ...);
 #define EXPORT extern "C" __declspec(dllexport)
 
-namespace ray{
-    #include "raylib.h"
-};
-#include "procDef.cc"
+#include "ray.h"
+#include "procPointers.cc"
 
 #if(DBG)
 
