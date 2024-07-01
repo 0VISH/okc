@@ -29,16 +29,13 @@ if not exist %rayDir% (
 if not exist %buildDir%\win32.obj (
     cl /nologo src/Windows/win32.cc -c %buildFlags% /Fo:%buildDir%\win32.obj
 )
-if not exist %buildDir%\microui.obj (
-    cl /nologo /Ivendor\microui\src\ vendor/microui/src/microui.c -c %buildFlags% /Fo:%buildDir%\microui.obj
-)
 set buildSand=F
 if not exist %buildDir%\sandbox.obj set buildSand=T
 if "%1"=="sand" set buildSand=T
 if "%1"=="rls" set buildSand=F
 if "%buildSand%"== "T" (
-    cl /nologo /Isrc/Game/ /Isrc/Editor/ /Ivendor/microui/src /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%buildDir%\sandbox.obj
-    link /NOLOGO %buildDir%\sandbox.obj %buildDir%\microui.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
+    cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%buildDir%\sandbox.obj
+    link /NOLOGO %buildDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
 )
 
 cl /nologo /Ivendor/raylib/src/ src/main.cc -c %buildFlags% /Fo:%buildDir%\okc.obj
