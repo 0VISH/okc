@@ -54,12 +54,25 @@ CLEANUP:
 //TARGET GAME GOES HERE
 #include "../sandbox/game.cc"
 
+#if(ANDROID)
+#include "Linux/linux.cc"
+#define LOG_FILE "/sdcard/runtime.log"
+#else
+#define LOG_FILE "runtime.log"
+#endif
+
 namespace log{
-    extern void *logFile;
+    void *logFile;
+};
+void clog(const char *fmt, ...){
+    va_list args;
+    va_start(args, fmt);
+    vfprintf((FILE*)log::logFile, fmt, args);
+    va_end(args);
 };
 
-u32 main(){
-    log::logFile = openFile("runtime.log");
+s32 main(){
+    log::logFile = openFile(LOG_FILE);
     InitWindow(1800, 900, "sandbox");
     gameInit();
     while(!WindowShouldClose()){

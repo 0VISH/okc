@@ -15,18 +15,6 @@ void clog(const char *fmt, ...){
 };
 #endif
 
-#if(RLS)
-namespace log{
-    void *logFile;
-};
-void clog(const char *fmt, ...){
-    va_list args;
-    va_start(args, fmt);
-    vfprintf((FILE*)log::logFile, fmt, args);
-    va_end(args);
-};
-#endif
-
 namespace code{
     void *cpyAndLoadTemp(char *filePath){
         char buff[1024];
