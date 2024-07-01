@@ -1,6 +1,5 @@
-#include <stdarg.h>
-
 #include "basic.hh"
+#include "log.cc"
 #include "platform.hh"
 #include "raylib.h"
 
@@ -53,23 +52,6 @@ CLEANUP:
 
 //TARGET GAME GOES HERE
 #include "../sandbox/game.cc"
-
-#if(ANDROID)
-#include "Linux/linux.cc"
-#define LOG_FILE "/sdcard/runtime.log"
-#else
-#define LOG_FILE "runtime.log"
-#endif
-
-namespace log{
-    void *logFile;
-};
-void clog(const char *fmt, ...){
-    va_list args;
-    va_start(args, fmt);
-    vfprintf((FILE*)log::logFile, fmt, args);
-    va_end(args);
-};
 
 s32 main(){
     log::logFile = openFile(LOG_FILE);

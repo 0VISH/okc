@@ -6,15 +6,6 @@
 #include "../basic.hh"
 #include "../platform.hh"
 
-#if(DBG)
-void clog(const char *fmt, ...){
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-};
-#endif
-
 namespace code{
     void *cpyAndLoadTemp(char *filePath){
         char buff[1024];
