@@ -21,9 +21,9 @@ namespace code{
         };
         return (void*)LoadLibraryA(buff);
     };
-    bool bindGameCode(void* code, VOIDPROC *procs, u32 len){
-        auto gameProcBind = (bool(*)(VOIDPROC*, u32))GetProcAddress((HMODULE)code, "gameBind");
-        return gameProcBind(procs, len);
+    bool bindGameCode(void* code, VOIDPROC *procs, u32 len, void *gameMem, u64 memSize){
+        auto gameProcBind = (bool(*)(VOIDPROC*, u32, void*))GetProcAddress((HMODULE)code, "gameBind");
+        return gameProcBind(procs, len, gameMem);
     };
     void* reload(char *filePath, void* code){
         FreeLibrary((HMODULE)code);

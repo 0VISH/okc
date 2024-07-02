@@ -29,13 +29,16 @@ if not exist %rayDir% (
 if not exist %buildDir%\win32.obj (
     cl /nologo src/Windows/win32.cc -c %buildFlags% /Fo:%buildDir%\win32.obj
 )
+if not exist %buildDir%\box2d.obj (
+    cl /nologo /Ivendor/box2d/include/ /Ivendor/box2d/src/ src/box2d.cc -c %buildFlags% /Fo:%buildDir%\box2d.obj
+)
 set buildSand=F
 if not exist %buildDir%\sandbox.obj set buildSand=T
 if "%1"=="sand" set buildSand=T
 if "%1"=="rls" set buildSand=F
 if "%buildSand%"== "T" (
-    cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ sandbox/game.cc -c %buildFlags% /Fo:%buildDir%\sandbox.obj
-    link /NOLOGO %buildDir%\sandbox.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
+    cl /nologo /Isrc/Game/ /Ivendor/raylib/src/ /Ivendor/vendor/box2d/include/ sandbox/game.cc -c %buildFlags% /Fo:%buildDir%\sandbox.obj
+    link /NOLOGO %buildDir%\sandbox.obj %buildDir%\box2d.obj /DLL /OUT:%buildDir%\game.dll /DEBUG /PDB:%buildDir%\game.pdb
 )
 
 cl /nologo /Ivendor/raylib/src/ src/main.cc -c %buildFlags% /Fo:%buildDir%\okc.obj

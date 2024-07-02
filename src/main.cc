@@ -2,6 +2,9 @@
 #include "log.cc"
 #include "platform.hh"
 #include "raylib.h"
+#include <stdlib.h>
+
+#define GAME_MEM_SIZE 100000
 
 #if(DBG)
 
@@ -17,20 +20,21 @@ VOIDPROC procs[] = {
 u32 main(){
     void *gameCode = code::cpyAndLoadTemp(GAME_CODE);
     if(!gameCode) return 1;
-    if(!code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs))) goto CLEANUP;
+    void *gameMem = malloc(GAME_MEM_SIZE);
+    if(!code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs), gameMem, GAME_MEM_SIZE)) goto CLEANUP;
     auto gameUpdate = (VOIDPROC)code::getProc(gameCode, "gameUpdate");
     if(!gameUpdate){
         clog("gameUpdate is null");
         goto CLEANUP;
     };
     InitWindow(1800, 900, "okc");
-    auto gameInit = (VOIDPROC)code::getProc(gameCode, "gameInit");
+    auto gameInit = (void(*)(void*, u64))code::getProc(gameCode, "gameInit");
     if(gameInit == nullptr) clog("gameInit is null");
-    else gameInit();
+    else gameInit(gameMem, GAME_MEM_SIZE);
     while(!WindowShouldClose()){
         if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_R)){
             gameCode = code::reload(GAME_CODE, gameCode);
-            code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs));
+            code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs), gameMem, GAME_MEM_SIZE);
         };
         BeginDrawing();
         ClearBackground({10, 10, 10, 255});
@@ -44,6 +48,7 @@ CLEANUP:
         if(gameUninit == nullptr) clog("gameUninit is null");
         code::unload(gameCode);
     };
+    free(gameMem);
 };
 
 #endif
@@ -56,7 +61,8 @@ CLEANUP:
 s32 main(){
     log::logFile = openFile(LOG_FILE);
     InitWindow(1800, 900, "sandbox");
-    gameInit();
+    void *gameMem = malloc(GAME_MEM_SIZE);
+    gameInit(gameMem, GAME_MEM_SIZE);
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground({10, 10, 10, 255});
@@ -65,6 +71,7 @@ s32 main(){
     };
     gameUninit();
     CloseWindow();
+    free(gameMem);
     closeFile(log::logFile);
 };
 #endif

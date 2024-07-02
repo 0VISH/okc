@@ -9,12 +9,13 @@ typedef void (*VOIDPROC)();
 void (*clog)(const char*, ...);
 #define EXPORT extern "C" __declspec(dllexport)
 
-#define BIND_PROC(PROC_DST)						                                                   \
+#define BIND_PROC(PROC_DST)			                                                   \
     if(x >= len){clog("Binding %s failed as x(%d) >= len(%d)", #PROC_DST, x, len); return false;}; \
-    PROC_DST = reinterpret_cast<decltype(PROC_DST)>(procs[x]);		                               \
-    x += 1;								                                                           \
+    PROC_DST = reinterpret_cast<decltype(PROC_DST)>(procs[x]);		                           \
+    x += 1;							                                   \
 
-EXPORT bool gameBind(VOIDPROC *procs, u32 len){
+void gameReload(void *, u64);
+EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem, u64 memSize){
     u32 x = 0;
     BIND_PROC(clog);
     #include "procBind.cc"
@@ -24,6 +25,7 @@ EXPORT bool gameBind(VOIDPROC *procs, u32 len){
 	    return false;
     };
 #endif
+    gameReload(gameMem, memSize);
     return true;
 };
 
@@ -32,3 +34,7 @@ EXPORT bool gameBind(VOIDPROC *procs, u32 len){
 #if(RLS)
 #define EXPORT
 #endif
+
+#include <math.h>
+#include <string.h>
+#include "mem.cc"
