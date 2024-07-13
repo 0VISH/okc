@@ -46,6 +46,7 @@ CLEANUP:
     if(gameCode){
         auto gameUninit = (VOIDPROC)code::getProc(gameCode, "gameUninit");
         if(gameUninit == nullptr) clog("gameUninit is null");
+        else gameUninit();
         code::unload(gameCode);
     };
     free(gameMem);
