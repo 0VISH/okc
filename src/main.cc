@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #define GAME_MEM_SIZE 100000
+const f32 phyHertz = 60.0;
 
 #if(DBG)
 
@@ -22,23 +23,36 @@ u32 main(){
     if(!gameCode) return 1;
     void *gameMem = malloc(GAME_MEM_SIZE);
     if(!code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs), gameMem, GAME_MEM_SIZE)) goto CLEANUP;
-    auto gameUpdate = (VOIDPROC)code::getProc(gameCode, "gameUpdate");
+    auto gameUpdate = (void(*)(f32))code::getProc(gameCode, "gameUpdate");
     if(!gameUpdate){
         clog("gameUpdate is null");
+        goto CLEANUP;
+    };
+    auto gamePhyUpdate = (VOIDPROC)code::getProc(gameCode, "gamePhyUpdate");
+    if(!gamePhyUpdate){
+        clog("gamePhyUpdate is null");
         goto CLEANUP;
     };
     InitWindow(1800, 900, "okc");
     auto gameInit = (void(*)(void*, u64))code::getProc(gameCode, "gameInit");
     if(gameInit == nullptr) clog("gameInit is null");
     else gameInit(gameMem, GAME_MEM_SIZE);
+    f32 phyDelta = 0;
+    const f32 phyTimeStamp = (f32)1/phyHertz;
     while(!WindowShouldClose()){
         if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_R)){
             gameCode = code::reload(GAME_CODE, gameCode);
             code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs), gameMem, GAME_MEM_SIZE);
         };
+        f32 dt = GetFrameTime();
+        phyDelta += dt;
+        if(phyDelta >= phyTimeStamp){
+            if(gamePhyUpdate) gamePhyUpdate();
+            phyDelta = 0;
+        };
         BeginDrawing();
         ClearBackground({10, 10, 10, 255});
-        gameUpdate();
+        gameUpdate(dt);
         EndDrawing();
     };
     CloseWindow();
@@ -65,9 +79,15 @@ s32 main(){
     void *gameMem = malloc(GAME_MEM_SIZE);
     gameInit(gameMem, GAME_MEM_SIZE);
     while(!WindowShouldClose()){
+        f32 dt = GetFrameTime();
+        phyDelta += dt;
+        if(phyDelta >= phyTimeStamp){
+            if(gamePhyUpdate) gamePhyUpdate();
+            phyDelta = 0;
+        };
         BeginDrawing();
         ClearBackground({10, 10, 10, 255});
-        gameUpdate();
+        gameUpdate(dt);
         EndDrawing();
     };
     gameUninit();
