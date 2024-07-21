@@ -6,3 +6,4 @@ src/Game/procBind.cc
 src/Game/procPointers.cc
 src/Game/ray.h
 src/procArr.cc
+src/gamePath.hh

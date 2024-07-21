@@ -1,8 +1,10 @@
 #include "basic.hh"
-#include "log.cc"
+#include "trace.cc"
 #include "platform.hh"
 #include "raylib.h"
 #include <stdlib.h>
+//NOTE: create a file named "gamePath.hh" and define GAME_PATH
+#include "gamePath.hh"
 
 #define GAME_MEM_SIZE 100000
 const f32 phyHertz = 60.0;
@@ -25,17 +27,17 @@ u32 main(){
     if(!code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs), gameMem, GAME_MEM_SIZE)) goto CLEANUP;
     auto gameUpdate = (void(*)(f32))code::getProc(gameCode, "gameUpdate");
     if(!gameUpdate){
-        clog("gameUpdate is null");
+        clog("gameUpdate is null\n");
         goto CLEANUP;
     };
     auto gamePhyUpdate = (VOIDPROC)code::getProc(gameCode, "gamePhyUpdate");
     if(!gamePhyUpdate){
-        clog("gamePhyUpdate is null");
+        clog("gamePhyUpdate is null\n");
         goto CLEANUP;
     };
     InitWindow(1800, 900, "okc");
     auto gameInit = (void(*)(void*, u64))code::getProc(gameCode, "gameInit");
-    if(gameInit == nullptr) clog("gameInit is null");
+    if(gameInit == nullptr) clog("gameInit is null\n");
     else gameInit(gameMem, GAME_MEM_SIZE);
     f32 phyDelta = 0;
     const f32 phyTimeStamp = (f32)1/phyHertz;
@@ -46,20 +48,17 @@ u32 main(){
         };
         f32 dt = GetFrameTime();
         phyDelta += dt;
-        if(phyDelta >= phyTimeStamp){
-            if(gamePhyUpdate) gamePhyUpdate();
-            phyDelta = 0;
+        while(phyDelta >= phyTimeStamp){
+            gamePhyUpdate();
+            phyDelta -= phyTimeStamp;
         };
-        BeginDrawing();
-        ClearBackground({10, 10, 10, 255});
         gameUpdate(dt);
-        EndDrawing();
     };
     CloseWindow();
 CLEANUP:
     if(gameCode){
         auto gameUninit = (VOIDPROC)code::getProc(gameCode, "gameUninit");
-        if(gameUninit == nullptr) clog("gameUninit is null");
+        if(gameUninit == nullptr) clog("gameUninit is null\n");
         else gameUninit();
         code::unload(gameCode);
     };
@@ -69,30 +68,27 @@ CLEANUP:
 #endif
 
 #if(RLS)
-
-//TARGET GAME GOES HERE
-#include "../sandbox/game.cc"
+#include GAME_PATH
 
 s32 main(){
-    log::logFile = openFile(LOG_FILE);
+    trace::traceFile = openFile(TRACE_FILE);
     InitWindow(1800, 900, "sandbox");
     void *gameMem = malloc(GAME_MEM_SIZE);
     gameInit(gameMem, GAME_MEM_SIZE);
+    f32 phyDelta = 0;
+    const f32 phyTimeStamp = (f32)1/phyHertz;
     while(!WindowShouldClose()){
         f32 dt = GetFrameTime();
         phyDelta += dt;
-        if(phyDelta >= phyTimeStamp){
-            if(gamePhyUpdate) gamePhyUpdate();
-            phyDelta = 0;
+        while(phyDelta >= phyTimeStamp){
+            gamePhyUpdate();
+            phyDelta -= phyTimeStamp;
         };
-        BeginDrawing();
-        ClearBackground({10, 10, 10, 255});
         gameUpdate(dt);
-        EndDrawing();
     };
     gameUninit();
     CloseWindow();
     free(gameMem);
-    closeFile(log::logFile);
+    closeFile(trace::traceFile);
 };
 #endif

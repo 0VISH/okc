@@ -89,9 +89,9 @@ namespace mem{
     };
     void init(void *mem, u64 memSize){
 	reload(mem, memSize);
-	allocCount = 0;
         memset(stat, 0, memory - (char*)stat);
 #if(DBG)
+	allocCount = 0;
 	memset(memory, 'A', allocator::CHUNK_SIZE * allocator::CHUNK_COUNT);
 #endif
     };

@@ -13,18 +13,18 @@ void clog(const char *fmt, ...){
 #if(RLS)
 #if(ANDROID)
 #include "Linux/linux.cc"
-#define LOG_FILE "/sdcard/runtime.log"
+#define TRACE_FILE "/sdcard/runtime.trc"
 #else
-#define LOG_FILE "runtime.log"
+#define TRACE_FILE "runtime.trc"
 #endif
 
-namespace log{
-    void *logFile;
+namespace trace{
+    void *traceFile;
 };
 void clog(const char *fmt, ...){
     va_list args;
     va_start(args, fmt);
-    vfprintf((FILE*)log::logFile, fmt, args);
+    vfprintf((FILE*)trace::traceFile, fmt, args);
     va_end(args);
 };
 #endif
