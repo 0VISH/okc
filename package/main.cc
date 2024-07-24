@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include "../basic.hh"
+#include "../src/basic.hh"
 
 #define HEADER_END_MAGIC_NUMBER 0x6969
 
