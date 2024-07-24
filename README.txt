@@ -1,6 +1,7 @@
 OKC
 
 Pull recursively and run src/raylib.py before building
+Create "gamePath.hh" under src/ and define GAME_PATH with the path to your game's main.cc 
 
 ----ANDROID----
 Building for android sucks. It makes me paranoid android
