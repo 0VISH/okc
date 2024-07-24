@@ -3,17 +3,17 @@
 #include <stdlib.h>
 #include <vector>
 #include "../src/basic.hh"
-
-#define HEADER_END_MAGIC_NUMBER 0x6969
+#include "package.hh"
 
 struct File{
     u64   size;
-    char *name;
+    char  name[100];
     char *mem;
 };
 
 struct PackageBuilder{
     std::vector<File> files;
+    u32 fileNameLen = 0;
 
     void addFile(char *fileName){
         FILE *f = fopen(fileName, "rb");
@@ -22,7 +22,9 @@ struct PackageBuilder{
             return;
         };
         File file;
-        file.name = fileName;
+        u32 strLen = strlen(fileName) + 1;
+        fileNameLen += strLen;
+        memcpy(file.name, fileName, strLen);
         fseek(f, 0, SEEK_END);
 	file.size = ftell(f);
 	fseek(f, 0, SEEK_SET);
@@ -60,29 +62,24 @@ struct PackageBuilder{
     };
     void buildPackage(char *pkgName){
         FILE *pkg = fopen(pkgName, "wb");
-        u64 offset = 0;
+        fwrite(&fileNameLen, sizeof(fileNameLen), 1, pkg);
+        u32 fileCount = files.size();
+        fwrite(&fileCount, sizeof(fileCount), 1, pkg);
         for(const File &f : files){
             //HEADER
             u32 len = strlen(f.name);
             fwrite(&len, sizeof(len), 1, pkg);
             fwrite(f.name, len, 1, pkg);
             fwrite(&f.size, sizeof(f.size), 1, pkg);
-            fwrite(&offset, sizeof(offset), 1, pkg);
-            offset += f.size;
-        };
-        const u32 header_end_magic_number = HEADER_END_MAGIC_NUMBER;
-        fwrite(&header_end_magic_number, sizeof(header_end_magic_number), 1, pkg);
-        for(const File &f : files){
-            //BODY
             fwrite(f.mem, f.size, 1, pkg);
             free(f.mem);
         };
+        const u32 pkg_end_magic_number = PKG_END_MAGIC_NUMBER;
+        fwrite(&pkg_end_magic_number, sizeof(pkg_end_magic_number), 1, pkg);
         fclose(pkg);
         printf("[+]: Dumped %s package\n", pkgName);
     };
 };
-
-#define READ(T) *(T*)off; off += sizeof(T);
 
 void infoPackage(char *pkgName){
     FILE *pkg = fopen(pkgName, "rb");
@@ -100,15 +97,18 @@ void infoPackage(char *pkgName){
     const char *dashes = "--------------------";
     printf("%s%s%s\n", dashes, pkgName, dashes);
     char *off = pkgMem;
+    READ(u32);
+    u32 fileCount = READ(u32);
+    printf("file_count: %d\n", fileCount);
     while(true){
         u32 magicNum = *(u32*)off;
-        if(magicNum == HEADER_END_MAGIC_NUMBER) break;
+        if(magicNum == PKG_END_MAGIC_NUMBER) break;
         u32 len = READ(u32);
         printf("%.*s(%d) -> ", len, off, len);
         off += len;
         u64 size = READ(u64);
-        u64 offset = READ(u64);
-        printf("[size(%lld), rel_off(%lld)]\n", size, offset);
+        printf("size(%lld)\n", size);
+        off += size;
     };
     printf("%s[END]%s\n", dashes, dashes);
     free(pkgMem);

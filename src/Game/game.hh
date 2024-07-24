@@ -1,3 +1,8 @@
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "basic.hh"
 
 #if(DBG)
@@ -35,6 +40,5 @@ EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem, u64 memSize){
 #define EXPORT
 #endif
 
-#include <math.h>
-#include <string.h>
 #include "mem.cc"
+#include "package.cc"
