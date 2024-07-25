@@ -10,11 +10,11 @@ struct PackageManager{
     char *pkgMem;
 
     void uninit(){
-	free(pkgMem);
-	free(nameMem);
-	free(keys);
-	free(values);
-	free(sizes);
+	afree(pkgMem);
+	afree(nameMem);
+	afree(keys);
+	afree(values);
+	afree(sizes);
     };
     u32 hashFunc(const char *key, u32 len){
 	//fnv_hash_1a_32
@@ -59,18 +59,18 @@ struct PackageManager{
 	fseek(pkg, 0, SEEK_END);
 	u64 size = ftell(pkg);
 	fseek(pkg, 0, SEEK_SET);
-	pkgMem = (char*)malloc(size);
+	pkgMem = (char*)alloc(size);
 	fread(pkgMem, size, 1, pkg);
 	fclose(pkg);
 	char *off = pkgMem;
 	u32 fileNameLen = READ(u32);
 	u32 fileCount = READ(u32);
 	len = fileCount;
-	nameMem = (char*)malloc(fileNameLen);
+	nameMem = (char*)alloc(fileNameLen);
 	nameMemOff = nameMem;
-	keys = (char**)malloc(sizeof(char*) * fileCount);
-	values = (char**)malloc(sizeof(char*) * fileCount);
-	sizes = (u64*)malloc(sizeof(u64) * fileCount);
+	keys = (char**)alloc(sizeof(char*) * fileCount);
+	values = (char**)alloc(sizeof(char*) * fileCount);
+	sizes = (u64*)alloc(sizeof(u64) * fileCount);
 	memset(keys, NULL, sizeof(char*) * fileCount);
 	while(true){
 	    u32 magicNum = *(u32*)off;

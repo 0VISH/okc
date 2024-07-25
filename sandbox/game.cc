@@ -1,12 +1,10 @@
 #include "game.hh"
 
-void gameReload(void *gameMem, u64 memSize){
+void gameReload(void *gameMem){
     clog("ye %p\n", gameMem);
-    mem::reload(gameMem, memSize);
 };
-EXPORT void gameInit(void *gameMem, u64 memSize){
+EXPORT void gameInit(void *gameMem){
     clog("Hello from sandbox\n");
-    mem::init(gameMem, memSize); 
 };
 EXPORT void gameUpdate(f32 dt){
     BeginDrawing();

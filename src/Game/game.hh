@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "config.hh"
 #include "basic.hh"
 
 #if(DBG)
@@ -11,7 +11,9 @@
 #include "procPointers.cc"
 
 typedef void (*VOIDPROC)();
-void (*clog)(const char*, ...);
+void  (*clog)(const char*, ...);
+void* (*alloc)(u64);
+void  (*afree)(void*);
 #define EXPORT extern "C" __declspec(dllexport)
 
 #define BIND_PROC(PROC_DST)			                                                   \
@@ -19,10 +21,12 @@ void (*clog)(const char*, ...);
     PROC_DST = reinterpret_cast<decltype(PROC_DST)>(procs[x]);		                           \
     x += 1;							                                   \
 
-void gameReload(void *, u64);
-EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem, u64 memSize){
+void gameReload(void *);
+EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem){
     u32 x = 0;
     BIND_PROC(clog);
+    BIND_PROC(alloc);
+    BIND_PROC(afree);
     #include "procBind.cc"
 #if(DBG)
     if(x < len){
@@ -30,7 +34,7 @@ EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem, u64 memSize){
 	    return false;
     };
 #endif
-    gameReload(gameMem, memSize);
+    gameReload(gameMem);
     return true;
 };
 
@@ -40,5 +44,4 @@ EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem, u64 memSize){
 #define EXPORT
 #endif
 
-#include "mem.cc"
 #include "package.cc"
