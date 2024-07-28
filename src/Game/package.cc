@@ -10,11 +10,13 @@ struct PackageManager{
     char *pkgMem;
 
     void uninit(){
+#if(RLS)
 	afree(pkgMem);
 	afree(nameMem);
 	afree(keys);
 	afree(values);
 	afree(sizes);
+#endif
     };
     u32 hashFunc(const char *key, u32 len){
 	//fnv_hash_1a_32
@@ -35,7 +37,11 @@ struct PackageManager{
 	values[hash] = (char*)mem;
 	sizes[hash] = fileSize;
     };
-    void *getFile(char *name, u64 &size){
+    void *getFile(char *name, s32 &size){
+#if(DBG)
+	return LoadFileData(name, (s32*)&size);
+#endif
+#if(RLS)
 	u32 strLen = strlen(name);
 	u32 startHash = hashFunc(name, strLen) % len;
 	u32 hash = startHash;
@@ -49,15 +55,17 @@ struct PackageManager{
 	    if(hash == startHash){return nullptr;};
 	};
 	return nullptr;
+#endif
     };
     void init(char *pkgName){
+#if(RLS)
 	FILE *pkg = fopen(pkgName, "rb");
 	if(!pkg){
 	    clog("[-]: Package %s does not exist\n", pkgName);
 	    return;
 	};
 	fseek(pkg, 0, SEEK_END);
-	u64 size = ftell(pkg);
+	size = (s32)ftell(pkg);
 	fseek(pkg, 0, SEEK_SET);
 	pkgMem = (char*)alloc(size);
 	fread(pkgMem, size, 1, pkg);
@@ -78,12 +86,11 @@ struct PackageManager{
 	    u32 lenStr = READ(u32);
 	    char *str = off;
 	    off += lenStr;
-	    u64 size = READ(u64);
-#if(DBG)
-	    clog("loaded %.*s with size %lld\n", lenStr, str, size);
-#endif
-	    insert(str, lenStr, size, off);
-	    off += size;
+	    u64 fileSize = READ(u64);
+	    clog("loaded %.*s with size %lld\n", lenStr, str, fileSize);
+	    insert(str, lenStr, fileSize, off);
+	    off += fileSize;
 	};
+#endif
     }; 
 };
