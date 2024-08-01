@@ -14,6 +14,7 @@ typedef void (*VOIDPROC)();
 void  (*clog)(const char*, ...);
 void* (*alloc)(u64);
 void  (*afree)(void*);
+void  (*exitOKC)();
 #define EXPORT extern "C" __declspec(dllexport)
 
 #define BIND_PROC(PROC_DST)			                                                   \
@@ -27,6 +28,7 @@ EXPORT bool gameBind(VOIDPROC *procs, u32 len, void *gameMem){
     BIND_PROC(clog);
     BIND_PROC(alloc);
     BIND_PROC(afree);
+    BIND_PROC(exitOKC);
     #include "procBind.cc"
 #if(DBG)
     if(x < len){

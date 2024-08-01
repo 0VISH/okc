@@ -42,6 +42,7 @@ struct PackageManager{
 	return LoadFileData(name, (s32*)&size);
 #endif
 #if(RLS)
+	name += strlen("assets/");
 	u32 strLen = strlen(name);
 	u32 startHash = hashFunc(name, strLen) % len;
 	u32 hash = startHash;
@@ -65,7 +66,7 @@ struct PackageManager{
 	    return;
 	};
 	fseek(pkg, 0, SEEK_END);
-	size = (s32)ftell(pkg);
+	u64 size = (s32)ftell(pkg);
 	fseek(pkg, 0, SEEK_SET);
 	pkgMem = (char*)alloc(size);
 	fread(pkgMem, size, 1, pkg);

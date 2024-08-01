@@ -1,6 +1,6 @@
 bin/
 **/*.ini
-**/*.log
+**/*.trc
 **/*.pkg
 
 src/Game/procBind.cc

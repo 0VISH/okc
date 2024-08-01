@@ -7,6 +7,9 @@
 //NOTE: create a file named "gamePath.hh" and define GAME_PATH
 #include "gamePath.hh"
 
+b32 shouldCont = true;
+void exitOKC(){shouldCont = false;};
+
 #if(DBG)
 
 #define V(proc) (VOIDPROC)proc
@@ -15,6 +18,7 @@ VOIDPROC procs[] = {
     V(clog),
     V(malloc),
     V(free),
+    V(exitOKC),
     #include "procArr.cc"
 };
 
@@ -41,7 +45,7 @@ u32 main(){
     else gameInit(gameMem);
     f32 phyDelta = 0;
     const f32 phyTimeStamp = (f32)1/PHY_HERTZ;
-    while(!WindowShouldClose()){
+    while(shouldCont){
         if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_R)){
             gameCode = code::reload(GAME_CODE, gameCode);
             code::bindGameCode(gameCode, procs, ARRAY_LENGTH(procs), gameMem);
@@ -53,6 +57,7 @@ u32 main(){
             phyDelta -= phyTimeStamp;
         };
         gameUpdate(dt);
+        shouldCont = shouldCont && !WindowShouldClose();
     };
     CloseWindow();
 CLEANUP:
@@ -79,7 +84,7 @@ s32 main(){
     gameInit(gameMem);
     f32 phyDelta = 0;
     const f32 phyTimeStamp = (f32)1/PHY_HERTZ;
-    while(!WindowShouldClose()){
+    while(shouldCont){
         f32 dt = GetFrameTime();
         phyDelta += dt;
         while(phyDelta >= phyTimeStamp){
@@ -87,6 +92,7 @@ s32 main(){
             phyDelta -= phyTimeStamp;
         };
         gameUpdate(dt);
+        shouldCont = shouldCont && !WindowShouldClose();
     };
     gameUninit();
     CloseWindow();
